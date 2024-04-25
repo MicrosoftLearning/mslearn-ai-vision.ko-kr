@@ -1,7 +1,6 @@
 ---
 lab:
-  title: Azure AI Custom Vision을 사용하여 이미지 분류
-  module: Module 9 - Developing Custom Vision Solutions
+  title: Azure AI Custom Vision을 사용하여 이미지 분류(레거시)
 ---
 
 # Azure AI Custom Vision을 사용하여 이미지 분류
