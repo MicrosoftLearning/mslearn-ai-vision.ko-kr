@@ -198,7 +198,7 @@ OCR(광학 인식)은 이미지와 문서에서 텍스트 읽기를 처리하는
     // Draw bounding box around line
     var drawLinePolygon = true;
     
-    // Return each line detected in the image and the position bounding box around each line
+    // Return the position bounding box around each line
     
     
     
