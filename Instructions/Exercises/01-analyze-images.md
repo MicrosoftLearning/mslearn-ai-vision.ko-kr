@@ -473,9 +473,9 @@ body = {
 response = requests.post(url, headers=headers, json=body)
 
 image=response.content
-with open("backgroundForeground.png", "wb") as file:
+with open("background.png", "wb") as file:
     file.write(image)
-print('  Results saved in backgroundForeground.png \n')
+print('  Results saved in background.png \n')
 ```
     
 2. 변경 내용을 저장한 다음 **images** 이미지 폴더의 각 이미지 파일별로 프로그램을 한 번씩 실행합니다. 프로그램을 실행할 때마다 각 이미지에 대해 코드 파일과 같은 폴더에 생성되는 **background.png** 파일을 엽니다.  각 이미지에서 백그라운드가 어떻게 제거되었는지 확인합니다.
