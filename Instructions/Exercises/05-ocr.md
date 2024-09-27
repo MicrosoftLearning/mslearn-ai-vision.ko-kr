@@ -49,7 +49,7 @@ OCR(광학 인식)은 이미지와 문서에서 텍스트 읽기를 처리하는
     **C#**
     
     ```
-    dotnet add package Azure.AI.Vision.ImageAnalysis -v 1.0.0-beta.1
+    dotnet add package Azure.AI.Vision.ImageAnalysis -v 1.0.0-beta.3
     ```
 
     > **참고**: 개발 키트 확장을 설치하라는 메시지가 표시되면 메시지를 안전하게 닫을 수 있습니다.
@@ -57,7 +57,7 @@ OCR(광학 인식)은 이미지와 문서에서 텍스트 읽기를 처리하는
     **Python**
     
     ```
-    pip install azure-ai-vision-imageanalysis==1.0.0b1
+    pip install azure-ai-vision-imageanalysis==1.0.0b3
     ```
 
 3. **read-text** 폴더의 내용을 표시하여 구성 설정용 파일이 포함되어 있음을 확인합니다.

@@ -50,13 +50,13 @@ lab:
     **C#**
 
     ```
-    dotnet add package Azure.AI.Vision.ImageAnalysis -v 0.15.1-beta.1
+    dotnet add package Azure.AI.Vision.ImageAnalysis -v 1.0.0-beta.3
     ```
 
     **Python**
 
     ```
-    pip install azure-ai-vision==0.15.1b1
+    pip install azure-ai-vision==1.0.0b3
     ```
     
 3. **computer-vision** 폴더의 내용을 표시하여 구성 설정용 파일이 포함되어 있음을 확인합니다.
@@ -75,8 +75,7 @@ lab:
     **C#**
 
     ```C#
-    // import namespaces
-    using Azure.AI.Vision.Common;
+    // Import namespaces
     using Azure.AI.Vision.ImageAnalysis;
     ```
 
@@ -84,7 +83,9 @@ lab:
 
     ```Python
     # import namespaces
-    import azure.ai.vision as sdk
+    from azure.ai.vision.imageanalysis import ImageAnalysisClient
+    from azure.ai.vision.imageanalysis.models import VisualFeatures
+    from azure.core.credentials import AzureKeyCredential
     ```
 
 ## 분석할 이미지 확인
@@ -104,8 +105,8 @@ lab:
 
     ```C#
     // Authenticate Azure AI Vision client
-    var cvClient = new VisionServiceOptions(
-        aiSvcEndpoint,
+    ImageAnalysisClient cvClient = new ImageAnalysisClient(
+        new Uri(aiSvcEndpoint),
         new AzureKeyCredential(aiSvcKey));
     ```
 
@@ -113,136 +114,70 @@ lab:
 
     ```Python
     # Authenticate Azure AI Vision client
-    cv_client = sdk.VisionServiceOptions(ai_endpoint, ai_key)
+    cv_client = ImageAnalysisClient(
+        endpoint=ai_endpoint,
+        credential=AzureKeyCredential(ai_key)
+    )
     ```
 
 2. **Main** 함수의 방금 추가한 코드 아래에 있는 코드가 이미지 파일 경로를 지정한 다음 **AnalyzeImage** 함수로 해당 이미지 경로를 전달함을 확인합니다. 이 함수는 아직 완전히 구현되지 않았습니다.
 
-3. **AnalyzeImage** 함수의 **검색할 기능 지정(PEOPLE)** 주석 아래에 다음 코드를 추가합니다.
+3. **AnalyzeImage** 함수의 **검색할 기능이 지정된 결과 가져오기(사용자)** 주석 아래에 다음 코드를 추가합니다.
 
     **C#**
 
     ```C#
-    // Specify features to be retrieved (PEOPLE)
-    Features =
-        ImageAnalysisFeature.People
+    // Get result with specified features to be retrieved (PEOPLE)
+    ImageAnalysisResult result = client.Analyze(
+        BinaryData.FromStream(stream),
+        VisualFeatures.People);
     ```
 
     **Python**
 
     ```Python
-    # Specify features to be retrieved (PEOPLE)
-    analysis_options = sdk.ImageAnalysisOptions()
-    
-    features = analysis_options.features = (
-        sdk.ImageAnalysisFeature.PEOPLE
-    )    
+    # Get result with specified features to be retrieved (PEOPLE)
+    result = cv_client.analyze(
+        image_data=image_data,
+        visual_features=[
+            VisualFeatures.PEOPLE],
+    )
     ```
 
-4. **AnalyzeImage** 함수의 **이미지 분석 가져오기** 주석 아래에 다음 코드를 추가합니다.
+4. **AnalyzeImage** 함수의 **감지된 사용자 주변에 경계 상자 그리기** 주석 아래에 다음 코드를 추가합니다.
 
     **C#**
 
     ```C
-    // Get image analysis
-    using var imageSource = VisionSource.FromFile(imageFile);
-    
-    using var analyzer = new ImageAnalyzer(serviceOptions, imageSource, analysisOptions);
-    
-    var result = analyzer.Analyze();
-    
-    if (result.Reason == ImageAnalysisResultReason.Analyzed)
+    // Draw bounding box around detected people
+    foreach (DetectedPerson person in result.People.Values)
     {
-        // Get people in the image
-        if (result.People != null)
+        if (person.Confidence > 0.5) 
         {
-            Console.WriteLine($" People:");
-        
-            // Prepare image for drawing
-            System.Drawing.Image image = System.Drawing.Image.FromFile(imageFile);
-            Graphics graphics = Graphics.FromImage(image);
-            Pen pen = new Pen(Color.Cyan, 3);
-            Font font = new Font("Arial", 16);
-            SolidBrush brush = new SolidBrush(Color.WhiteSmoke);
-        
-            foreach (var person in result.People)
-            {
-                // Draw object bounding box if confidence > 50%
-                if (person.Confidence > 0.5)
-                {
-                    // Draw object bounding box
-                    var r = person.BoundingBox;
-                    Rectangle rect = new Rectangle(r.X, r.Y, r.Width, r.Height);
-                    graphics.DrawRectangle(pen, rect);
-        
-                    // Return the confidence of the person detected
-                    Console.WriteLine($"   Bounding box {person.BoundingBox}, Confidence {person.Confidence:0.0000}");
-                }
-            }
-        
-            // Save annotated image
-            String output_file = "detected_people.jpg";
-            image.Save(output_file);
-            Console.WriteLine("  Results saved in " + output_file + "\n");
+            // Draw object bounding box
+            var r = person.BoundingBox;
+            Rectangle rect = new Rectangle(r.X, r.Y, r.Width, r.Height);
+            graphics.DrawRectangle(pen, rect);
         }
+
+        // Return the confidence of the person detected
+        //Console.WriteLine($"   Bounding box {person.BoundingBox.ToString()}, Confidence: {person.Confidence:F2}");
     }
-    else
-    {
-        var errorDetails = ImageAnalysisErrorDetails.FromResult(result);
-        Console.WriteLine(" Analysis failed.");
-        Console.WriteLine($"   Error reason : {errorDetails.Reason}");
-        Console.WriteLine($"   Error code : {errorDetails.ErrorCode}");
-        Console.WriteLine($"   Error message: {errorDetails.Message}\n");
-    }
-    
     ```
 
     **Python**
     
     ```Python
-    # Get image analysis
-    image = sdk.VisionSource(image_file)
-    
-    image_analyzer = sdk.ImageAnalyzer(cv_client, image, analysis_options)
-    
-    result = image_analyzer.analyze()
-    
-    if result.reason == sdk.ImageAnalysisResultReason.ANALYZED:
-        # Get people in the image
-        if result.people is not None:
-            print("\nPeople in image:")
-        
-            # Prepare image for drawing
-            image = Image.open(image_file)
-            fig = plt.figure(figsize=(image.width/100, image.height/100))
-            plt.axis('off')
-            draw = ImageDraw.Draw(image)
-            color = 'cyan'
-        
-            for detected_people in result.people:
-                # Draw object bounding box if confidence > 50%
-                if detected_people.confidence > 0.5:
-                    # Draw object bounding box
-                    r = detected_people.bounding_box
-                    bounding_box = ((r.x, r.y), (r.x + r.w, r.y + r.h))
-                    draw.rectangle(bounding_box, outline=color, width=3)
-            
-                    # Return the confidence of the person detected
-                    print(" {} (confidence: {:.2f}%)".format(detected_people.bounding_box, detected_people.confidence * 100))
-                    
-            # Save annotated image
-            plt.imshow(image)
-            plt.tight_layout(pad=0)
-            outputfile = 'detected_people.jpg'
-            fig.savefig(outputfile)
-            print('  Results saved in', outputfile)
-    
-    else:
-        error_details = sdk.ImageAnalysisErrorDetails.from_result(result)
-        print(" Analysis failed.")
-        print("   Error reason: {}".format(error_details.reason))
-        print("   Error code: {}".format(error_details.error_code))
-        print("   Error message: {}".format(error_details.message))
+    # Draw bounding box around detected people
+    for detected_people in result.people.list:
+        if(detected_people.confidence > 0.5):
+            # Draw object bounding box
+            r = detected_people.bounding_box
+            bounding_box = ((r.x, r.y), (r.x + r.width, r.y + r.height))
+            draw.rectangle(bounding_box, outline=color, width=3)
+
+        # Return the confidence of the person detected
+        #print(" {} (confidence: {:.2f}%)".format(detected_people.bounding_box, detected_people.confidence * 100))
     ```
 
 5. 변경 내용을 저장하고 **computer-vision** 폴더의 통합 터미널로 돌아와서 다음 명령을 입력하여 프로그램을 실행합니다.
@@ -260,7 +195,9 @@ lab:
     ```
 
 6. 출력을 살펴봅니다. 감지된 얼굴 수가 표시됩니다.
-7. 코드 파일과 같은 폴더에 생성된 **detected_people.jpg** 파일을 표시하여 주석이 추가된 얼굴을 확인합니다. 여기서 코드는 얼굴 특성을 사용해 상자의 왼쪽 상단 위치에 레이블을 지정하고 경계 상자 좌표를 사용해 각 얼굴 주위에 사각형을 그렸습니다.
+7. 코드 파일과 같은 폴더에 생성된 **people.jpg** 파일을 표시하여 주석이 추가된 얼굴을 확인합니다. 여기서 코드는 얼굴 특성을 사용해 상자의 왼쪽 상단 위치에 레이블을 지정하고 경계 상자 좌표를 사용해 각 얼굴 주위에 사각형을 그렸습니다.
+
+서비스에서 감지한 모든 사용자의 신뢰도 점수를 확인하기 위해 주석 `Return the confidence of the person detected` 아래 코드 줄의 주석 처리를 제거하고 코드를 다시 실행할 수 있습니다.
 
 ## Face SDK 사용 준비
 
@@ -477,7 +414,7 @@ with open(image_file, mode="rb") as image_data:
     dotnet run
     ```
 
-    *이제 C# 출력에 **await** 연산자를 사용하는 비동기 함수 관련 경고가 표시될 수 있습니다. 이러한 경고는 이러한 메시지는 무시해도 됩니다.*
+    *C# 출력에 **await** 연산자를 사용하는 비동기 함수 관련 경고가 표시될 수 있습니다. 이러한 경고는 이러한 메시지는 무시해도 됩니다.*
 
     **Python**
 
