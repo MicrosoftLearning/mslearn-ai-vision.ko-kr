@@ -56,7 +56,7 @@ lab:
     **Python**
 
     ```
-    pip install azure-ai-vision==1.0.0b3
+    pip install azure-ai-vision-imageanalysis==1.0.0b3
     ```
     
 3. **computer-vision** 폴더의 내용을 표시하여 구성 설정용 파일이 포함되어 있음을 확인합니다.
@@ -209,13 +209,13 @@ lab:
     **C#**
 
     ```
-    dotnet add package Microsoft.Azure.CognitiveServices.Vision.Face --version 2.8.0-preview.3
+    dotnet add package Azure.AI.Vision.Face -v 1.0.0-beta.2
     ```
 
     **Python**
 
     ```
-    pip install azure-cognitiveservices-vision-face==0.6.0
+    pip install azure-ai-vision-face==1.0.0b2
     ```
     
 3. **face-api** 폴더의 내용을 표시하여 구성 설정용 파일이 포함되어 있음을 확인합니다.
@@ -235,17 +235,17 @@ lab:
 
     ```C#
     // Import namespaces
-    using Microsoft.Azure.CognitiveServices.Vision.Face;
-    using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
+    using Azure;
+    using Azure.AI.Vision.Face;
     ```
 
     **Python**
 
     ```Python
     # Import namespaces
-    from azure.cognitiveservices.vision.face import FaceClient
-    from azure.cognitiveservices.vision.face.models import FaceAttributeType
-    from msrest.authentication import CognitiveServicesCredentials
+    from azure.ai.vision.face import FaceClient
+    from azure.ai.vision.face.models import FaceDetectionModel, FaceRecognitionModel, FaceAttributeTypeDetection03
+    from azure.core.credentials import AzureKeyCredential
     ```
 
 7. **Main** 함수에서 구성 설정 로드를 위한 코드가 제공되어 있음을 확인합니다. 그런 다음 **Face 클라이언트 인증** 주석을 찾습니다. 그 후에 이 주석 아래에 다음 언어별 코드를 추가하여 **FaceClient** 개체를 만들고 인증합니다.
@@ -254,26 +254,26 @@ lab:
 
     ```C#
     // Authenticate Face client
-    ApiKeyServiceClientCredentials credentials = new ApiKeyServiceClientCredentials(cogSvcKey);
-    faceClient = new FaceClient(credentials)
-    {
-        Endpoint = cogSvcEndpoint
-    };
+    faceClient = new FaceClient(
+        new Uri(cogSvcEndpoint),
+        new AzureKeyCredential(cogSvcKey));
     ```
 
     **Python**
 
     ```Python
     # Authenticate Face client
-    credentials = CognitiveServicesCredentials(cog_key)
-    face_client = FaceClient(cog_endpoint, credentials)
+    face_client = FaceClient(
+        endpoint=cog_endpoint,
+        credential=AzureKeyCredential(cog_key)
+    )
     ```
 
 8. **Main** 함수의 방금 추가한 코드 아래에 있는 코드가 메뉴를 표시함을 확인합니다. 이 메뉴를 사용하면 코드의 함수를 호출하여 Face 서비스 기능을 살펴볼 수 있습니다. 이 연습의 나머지 부분에서 이러한 함수를 구현합니다.
 
 ## 얼굴 감지 및 분석
 
-Face 서비스의 가장 기본적인 기능 중 하나는 이미지에서 얼굴을 감지하고 해당 특성을 확인하는 것입니다. 이러한 특성으로는 머리 자세, 흐릿한 형체, 안경 유무 등이 있습니다.
+Face 서비스의 가장 기본적인 기능 중 하나는 이미지에서 얼굴을 감지하고 해당 특성을 확인하는 것입니다. 이러한 특성으로는 머리 자세, 흐릿한 형체, 마스크 유무 등이 있습니다.
 
 1. 애플리케이션용 코드 파일의 **Main** 함수에서 사용자가 메뉴 옵션 **1**을 선택하면 실행되는 코드를 살펴봅니다. 이 코드는 **DetectFaces** 함수를 호출하여 이미지 파일의 경로를 전달합니다.
 2. 코드 파일에서 **DetectFaces** 함수를 찾은 다음 **검색할 얼굴 기능 지정** 주석 아래에 다음 코드를 추가합니다.
@@ -282,11 +282,11 @@ Face 서비스의 가장 기본적인 기능 중 하나는 이미지에서 얼�
 
     ```C#
     // Specify facial features to be retrieved
-    IList<FaceAttributeType> features = new FaceAttributeType[]
+    FaceAttributeType[] features = new FaceAttributeType[]
     {
-        FaceAttributeType.Occlusion,
-        FaceAttributeType.Blur,
-        FaceAttributeType.Glasses
+        FaceAttributeType.Detection03.HeadPose,
+        FaceAttributeType.Detection03.Blur,
+        FaceAttributeType.Detection03.Mask
     };
     ```
 
@@ -294,20 +294,26 @@ Face 서비스의 가장 기본적인 기능 중 하나는 이미지에서 얼�
 
     ```Python
     # Specify facial features to be retrieved
-    features = [FaceAttributeType.occlusion,
-                FaceAttributeType.blur,
-                FaceAttributeType.glasses]
+    features = [FaceAttributeTypeDetection03.HEAD_POSE,
+                FaceAttributeTypeDetection03.BLUR,
+                FaceAttributeTypeDetection03.MASK]
     ```
 
 3. **DetectFaces** 함수의 방금 추가한 코드 아래에서 **얼굴 가져오기** 주석을 찾은 후 다음 코드를 추가합니다.
 
 **C#**
 
-```C
+```C#
 // Get faces
 using (var imageData = File.OpenRead(imageFile))
 {    
-    var detected_faces = await faceClient.Face.DetectWithStreamAsync(imageData, returnFaceAttributes: features, returnFaceId: false);
+    var response = await faceClient.DetectAsync(
+        BinaryData.FromStream(imageData),
+        FaceDetectionModel.Detection03,
+        FaceRecognitionModel.Recognition04,
+        returnFaceId: false,
+        returnFaceAttributes: features);
+    IReadOnlyList<FaceDetectionResult> detected_faces = response.Value;
 
     if (detected_faces.Count() > 0)
     {
@@ -328,10 +334,11 @@ using (var imageData = File.OpenRead(imageFile))
             Console.WriteLine($"\nFace number {faceCount}");
             
             // Get face properties
-            Console.WriteLine($" - Mouth Occluded: {face.FaceAttributes.Occlusion.MouthOccluded}");
-            Console.WriteLine($" - Eye Occluded: {face.FaceAttributes.Occlusion.EyeOccluded}");
+            Console.WriteLine($" - Head Pose (Yaw): {face.FaceAttributes.HeadPose.Yaw}");
+            Console.WriteLine($" - Head Pose (Pitch): {face.FaceAttributes.HeadPose.Pitch}");
+            Console.WriteLine($" - Head Pose (Roll): {face.FaceAttributes.HeadPose.Roll}");
             Console.WriteLine($" - Blur: {face.FaceAttributes.Blur.BlurLevel}");
-            Console.WriteLine($" - Glasses: {face.FaceAttributes.Glasses}");
+            Console.WriteLine($" - Mask: {face.FaceAttributes.Mask.Type}");
 
             // Draw and annotate face
             var r = face.FaceRectangle;
@@ -354,8 +361,13 @@ using (var imageData = File.OpenRead(imageFile))
 ```Python
 # Get faces
 with open(image_file, mode="rb") as image_data:
-    detected_faces = face_client.face.detect_with_stream(image=image_data,
-                                                            return_face_attributes=features,                     return_face_id=False)
+    detected_faces = face_client.detect(
+        image_content=image_data.read(),
+        detection_model=FaceDetectionModel.DETECTION03,
+        recognition_model=FaceRecognitionModel.RECOGNITION04,
+        return_face_id=False,
+        return_face_attributes=features,
+    )
 
     if len(detected_faces) > 0:
         print(len(detected_faces), 'faces detected.')
@@ -375,19 +387,11 @@ with open(image_file, mode="rb") as image_data:
             face_count += 1
             print('\nFace number {}'.format(face_count))
 
-            detected_attributes = face.face_attributes.as_dict()
-            if 'blur' in detected_attributes:
-                print(' - Blur:')
-                for blur_name in detected_attributes['blur']:
-                    print('   - {}: {}'.format(blur_name, detected_attributes['blur'][blur_name]))
-                    
-            if 'occlusion' in detected_attributes:
-                print(' - Occlusion:')
-                for occlusion_name in detected_attributes['occlusion']:
-                    print('   - {}: {}'.format(occlusion_name, detected_attributes['occlusion'][occlusion_name]))
-
-            if 'glasses' in detected_attributes:
-                print(' - Glasses:{}'.format(detected_attributes['glasses']))
+            print(' - Head Pose (Yaw): {}'.format(face.face_attributes.head_pose.yaw))
+            print(' - Head Pose (Pitch): {}'.format(face.face_attributes.head_pose.pitch))
+            print(' - Head Pose (Roll): {}'.format(face.face_attributes.head_pose.roll))
+            print(' - Blur: {}'.format(face.face_attributes.blur.blur_level))
+            print(' - Mask: {}'.format(face.face_attributes.mask.type))
 
             # Draw and annotate face
             r = face.face_rectangle
@@ -405,7 +409,7 @@ with open(image_file, mode="rb") as image_data:
         print('\nResults saved in', outputfile)
 ```
 
-4. **DetectFaces** 함수에 추가한 코드를 살펴봅니다. 이미지 파일을 분석하고 폐색, 흐림 및 안경 유무 특성 등 포함된 얼굴을 감지합니다. 각 얼굴에 할당되는 고유 얼굴 식별자를 비롯한 각 얼굴의 세부 정보가 표시됩니다. 그리고 경계 상자를 사용하여 이미지상의 얼굴 위치가 표시됩니다.
+4. **DetectFaces** 함수에 추가한 코드를 살펴봅니다. 이미지 파일을 분석하고 머리 자세, 흐릿한 형체 및 마스크 유무 특성 등 이미지 파일에 포함된 모든 얼굴을 감지합니다. 각 얼굴에 할당되는 고유 얼굴 식별자를 비롯한 각 얼굴의 세부 정보가 표시됩니다. 그리고 경계 상자를 사용하여 이미지상의 얼굴 위치가 표시됩니다.
 5. 변경 내용을 저장하고 **face-api** 폴더의 통합 터미널로 돌아와서 다음 명령을 입력하여 프로그램을 실행합니다.
 
     **C#**
@@ -431,4 +435,4 @@ with open(image_file, mode="rb") as image_data:
 
 얼굴 감지를 위한 **Azure AI 비전** 서비스 사용에 대한 자세한 내용은 [Azure AI 비전 설명서](https://docs.microsoft.com/azure/cognitive-services/computer-vision/concept-detecting-faces)를 참조하세요.
 
-**Face** 서비스에 대해 자세히 알아보려면 [Face 설명서](https://docs.microsoft.com/azure/cognitive-services/face/)를 참조하세요.
+**Face** 서비스에 대해 자세히 알아보려면 [Face 설명서](https://learn.microsoft.com/azure/ai-services/computer-vision/overview-identity)를 참조하세요.
