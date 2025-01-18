@@ -6,7 +6,7 @@ lab:
 
 # Azure AI 비전으로 이미지 분석
 
-Azure AI 비전은 소프트웨어 시스템이 이미지를 분석하여 시각적 입력을 해석하는 데 사용할 수 있는 인공 지능 기능입니다. Microsoft Azure에서 **Vision** Azure AI 서비스는 캡션과 태그를 제안하는 이미지 분석, 공통 개체 및 사람 검색 등 일반적인 Computer Vision 작업을 위해 사전 빌드된 모델을 제공합니다. Azure AI 비전 서비스를 사용하여 백그라운드를 제거하거나 이미지의 포그라운드 매트를 만들 수도 있습니다.
+Azure AI 비전은 소프트웨어 시스템이 이미지를 분석하여 시각적 입력을 해석하는 데 사용할 수 있는 인공 지능 기능입니다. Microsoft Azure에서 **Vision** Azure AI 서비스는 캡션과 태그를 제안하는 이미지 분석, 공통 개체 및 사람 검색 등 일반적인 Computer Vision 작업을 위해 사전 빌드된 모델을 제공합니다. 
 
 ## 이 과정용 리포지토리 복제
 
@@ -408,86 +408,6 @@ if result.people is not None:
 3. 변경 내용을 저장한 다음 **images** 이미지 폴더의 각 이미지 파일별로 프로그램을 한 번씩 실행합니다. 프로그램을 실행할 때마다 감지된 개체를 살펴봅니다. 각 실행 후에는 코드 파일과 같은 폴더에 생성된 **objects.jpg** 파일을 표시하여 주석이 추가된 개체를 확인합니다.
 
 > **참고**: 이전 작업에서는 메서드 하나를 사용해 이미지를 분석한 다음 코드를 계속 추가하여 결과를 구문 분석하고 표시했습니다. SDK에서는 캡션 추천, 태그 식별, 개체 감지 등에 사용할 수 있는 개별 메서드도 제공하므로 가장 적절한 메서드를 사용하여 필요한 정보만 반환할 수 있습니다. 그러면 반환해야 하는 데이터 페이로드 크기가 줄어듭니다. 자세한 내용은 [.NET SDK 설명서](https://learn.microsoft.com/dotnet/api/overview/azure/cognitiveservices/computervision?view=azure-dotnet) 또는 [Python SDK 설명서](https://learn.microsoft.com/python/api/azure-cognitiveservices-vision-computervision/azure.cognitiveservices.vision.computervision)를 참조하세요.
-
-## 백그라운드를 제거하거나 이미지의 포그라운드 매트를 생성합니다.
-
-어떤 경우에는 이미지의 백그라운드를 제거해야 하거나 해당 이미지의 포그라운드 매트를 만들어야 할 수도 있습니다. 백그라운드 제거부터 시작해 보겠습니다.
-
-1. 코드 파일에서 **BackgroundForeground** 함수를 찾습니다. **이미지에서 백그라운드 제거 또는 포그라운드 매트 생성** 주석 아래에 다음 코드를 추가합니다.
-
-**C#**
-
-```C#
-// Remove the background from the image or generate a foreground matte
-Console.WriteLine($" Background removal:");
-// Define the API version and mode
-string apiVersion = "2023-02-01-preview";
-string mode = "backgroundRemoval"; // Can be "foregroundMatting" or "backgroundRemoval"
-
-string url = $"computervision/imageanalysis:segment?api-version={apiVersion}&mode={mode}";
-
-// Make the REST call
-using (var client = new HttpClient())
-{
-    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
-    client.BaseAddress = new Uri(endpoint);
-    client.DefaultRequestHeaders.Accept.Add(contentType);
-    client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
-
-    var data = new
-    {
-        url = $"https://github.com/MicrosoftLearning/mslearn-ai-vision/blob/main/Labfiles/01-analyze-images/Python/image-analysis/{imageFile}?raw=true"
-    };
-
-    var jsonData = JsonSerializer.Serialize(data);
-    var contentData = new StringContent(jsonData, Encoding.UTF8, contentType);
-    var response = await client.PostAsync(url, contentData);
-
-    if (response.IsSuccessStatusCode) {
-        File.WriteAllBytes("background.png", response.Content.ReadAsByteArrayAsync().Result);
-        Console.WriteLine("  Results saved in background.png\n");
-    }
-    else
-    {
-        Console.WriteLine($"API error: {response.ReasonPhrase} - Check your body url, key, and endpoint.");
-    }
-}
-```
-
-**Python**
-
-```Python
-# Remove the background from the image or generate a foreground matte
-print('\nRemoving background from image...')
-    
-url = "{}computervision/imageanalysis:segment?api-version={}&mode={}".format(endpoint, api_version, mode)
-
-headers= {
-    "Ocp-Apim-Subscription-Key": key, 
-    "Content-Type": "application/json" 
-}
-
-image_url="https://github.com/MicrosoftLearning/mslearn-ai-vision/blob/main/Labfiles/01-analyze-images/Python/image-analysis/{}?raw=true".format(image_file)  
-
-body = {
-    "url": image_url,
-}
-    
-response = requests.post(url, headers=headers, json=body)
-
-image=response.content
-with open("background.png", "wb") as file:
-    file.write(image)
-print('  Results saved in background.png \n')
-```
-    
-2. 변경 내용을 저장한 다음 **images** 이미지 폴더의 각 이미지 파일별로 프로그램을 한 번씩 실행합니다. 프로그램을 실행할 때마다 각 이미지에 대해 코드 파일과 같은 폴더에 생성되는 **background.png** 파일을 엽니다.  각 이미지에서 백그라운드가 어떻게 제거되었는지 확인합니다.
-
-이제 이미지에 대한 포그라운드 매트를 생성해 보겠습니다.
-
-3. 코드 파일에서 **BackgroundForeground** 함수를 찾습니다. **API 버전 및 모드 정의** 주석 아래에서 모드 변수를 `foregroundMatting`으로 변경합니다.
-
-4. 변경 내용을 저장한 다음 **images** 이미지 폴더의 각 이미지 파일별로 프로그램을 한 번씩 실행합니다. 프로그램을 실행할 때마다 각 이미지에 대해 코드 파일과 같은 폴더에 생성되는 **background.png** 파일을 엽니다.  이미지에 대해 포그라운드 매트가 어떻게 생성되었는지 확인합니다.
 
 ## 리소스 정리
 
