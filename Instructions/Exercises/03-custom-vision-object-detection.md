@@ -57,7 +57,7 @@ Azure 구독에 학습 및 예측용 **Custom Vision** 리소스가 이미 포�
 
 개체 감지 모델을 학습시키려면 모델이 식별할 클래스가 포함된 이미지를 업로드하고, 태그를 지정하여 각 개체 인스턴스에 대한 경계 상자를 나타내야 합니다.
 
-1. Visual Studio Code에서 리포지토리를 복제한 **03-object-detection/training-images** 폴더의 학습 이미지를 확인합니다. 이 폴더에는 과일 이미지가 포함되어 있습니다.
+1. Visual Studio Code에서 리포지토리를 복제한 **Labfiles/03-object-detection/training-images** 폴더의 학습 이미지를 확인합니다. 이 폴더에는 과일 이미지가 포함되어 있습니다.
 2. Custom Vision Portal의 개체 감지 프로젝트에서 **이미지 추가**를 클릭하고 압축 해제된 폴더 안의 모든 이미지를 업로드합니다.
 3. 이미지를 업로드한 후 첫 번째 이미지를 선택하여 엽니다.
 4. 자동으로 감지된 영역이 아래 이미지와 같이 표시될 때까지 이미지의 개체 위에 마우스를 놓고 있습니다. 그런 다음, 개체를 선택하고 필요한 경우 영역의 크기를 조정하여 개체를 둘러싸도록 합니다.
@@ -89,7 +89,7 @@ Custom Vision 포털의 UI를 사용하여 이미지에 태그를 지정할 수�
 1. Custom Vision 포털의 **학습 이미지** 페이지 오른쪽 위에 있는 *설정*(&#9881;) 아이콘을 클릭하여 프로젝트 설정을 표시합니다.
 2. **일반**(왼쪽에 있음) 아래에서 이 프로젝트를 고유하게 식별하는 **프로젝트 ID**를 확인합니다.
 3. 오른쪽의 **리소스** 아래에 키와 엔드포인트가 표시됩니다. 학습 리소스에 대한 세부 정보입니다(Azure Portal에서 리소스를 확인하여 이 정보를 얻을 수도 있음).**
-4. Visual Studio Code의 **03-object-detection** 폴더 아래에서 언어 기본 설정에 따라 **C-Sharp** 또는 **Python** 폴더를 확장합니다.
+4. Visual Studio Code의 **Labfiles/03-object-detection** 폴더 아래에서 언어 선택에 따라 **C-Sharp** 또는 **Python** 폴더를 확장합니다.
 5. **train-detector** 폴더를 마우스 오른쪽 단추로 클릭하고 통합 터미널을 엽니다. 그런 다음 언어 기본 설정에 적합한 명령을 실행하여 Custom Vision 학습 패키지를 설치합니다.
 
 **C#**
@@ -165,7 +165,7 @@ pip install azure-cognitiveservices-vision-customvision==3.1.1
 
 이미지 분류 모델을 게시했으므로 클라이언트 애플리케이션에서 해당 모델을 사용할 수 있습니다. 이번에도 **C#** 또는 **Python** 사용을 선택할 수 있습니다.
 
-1. Visual Studio Code에서 **03-object-detection** 폴더로 이동한 다음 선호하는 언어(**C-Sharp** 또는 **Python**)에 해당하는 폴더에서 **test-detector** 폴더를 확장합니다.
+1. Visual Studio Code에서 **Labfiles/03-object-detection** 폴더로 이동한 다음 기본 설정 언어(**C-Sharp** 또는 **Python**)에 해당하는 폴더에서 **test-detector** 폴더를 확장합니다.
 2. **test-detector** 폴더를 마우스 오른쪽 단추로 클릭하고 통합 터미널을 엽니다. 그런 후에 다음 SDK별 명령을 입력하여 Custom Vision Prediction 패키지를 설치합니다.
 
 **C#**

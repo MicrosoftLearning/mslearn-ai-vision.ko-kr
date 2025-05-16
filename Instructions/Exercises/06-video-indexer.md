@@ -82,7 +82,7 @@ Video Indexer를 사용해 비디오에서 인사이트를 검색할 수 있습�
 
 Video Indexer 포털은 비디오 인덱싱 프로젝트를 관리할 수 있는 유용한 인터페이스입니다. 그러나 Video Indexer 계정 액세스 권한이 없는 사용자에게 비디오와 인사이트를 제공해야 하는 경우도 많습니다. Video Indexer에서는 이러한 용도로 웹 페이지에 포함할 수 있는 위젯을 제공합니다.
 
-1. Visual Studio Code의 **06-video-indexer** 폴더에서 **analyze-video.html**을 엽니다. 이 기본 HTML 페이지를 Video Indexer **플레이어** 및 **인사이트** 위젯에 추가합니다. 이 파일의 헤더에는 **vb.widgets.mediator.js** 스크립트 참조가 있습니다. 이 스크립트를 실행하면 페이지의 여러 Video Indexer 위젯이 서로 상호 작용할 수 있습니다.
+1. Visual Studio Code의 **Labfiles/06-video-indexer** 폴더에서 **analyze-video.html**을 엽니다. 이 기본 HTML 페이지를 Video Indexer **플레이어** 및 **인사이트** 위젯에 추가합니다. 이 파일의 헤더에는 **vb.widgets.mediator.js** 스크립트 참조가 있습니다. 이 스크립트를 실행하면 페이지의 여러 Video Indexer 위젯이 서로 상호 작용할 수 있습니다.
 2. Video Indexer 포털에서 **미디어 파일** 페이지로 돌아와 **Responsible AI** 비디오를 엽니다.
 3. 비디오 플레이어 아래에서 **&lt;/&gt; 포함**을 선택하여 위젯을 포함할 HTML iframe 코드를 표시합니다.
 4. **공유 및 포함** 대화 상자에서 **플레이어** 위젯을 선택하고 비디오 크기를 560 x 315로 설정한 다음 클립보드에 embed 태그를 복사합니다.
@@ -117,7 +117,7 @@ Video Indexer REST API와의 모든 상호 작용에서는 동일한 패턴이 �
 - 헤더에서 API 키를 사용하는 **AccessToken** 메서드에 대한 초기 요청은 액세스 토큰을 가져오는 데 사용됩니다.
 - 후속 요청에서는 비디오 작업을 위해 REST 메서드를 호출할 때 이 액세스 토큰을 사용해 인증을 합니다.
 
-1. Visual Studio Code의 **06-video-indexer** 폴더에서 **get-videos.ps1**을 엽니다.
+1. Visual Studio Code의 **Labfiles/06-video-indexer** 폴더에서 **get-videos.ps1**을 엽니다.
 2. PowerShell 스크립트에서 **YOUR_ACCOUNT_ID** 및 **YOUR_API_KEY**의 자리 표시자를 앞에서 확인한 계정 ID 및 API 키 값으로 바꿉니다.
 3. 무료 계정의 *위치*는 "trial"입니다. 무제한 Video Indexer 계정(Azure 리소스가 연결되어 있음)을 만든 경우 이 값을 Azure 리소스가 프로비전된 위치(예: "eastus")로 변경할 수 있습니다.
 4. 스크립트의 코드를 검토합니다. 코드에서는 REST 메서드 2개가 호출됩니다. 하나는 액세스 토큰을 가져오는 메서드이고, 다른 하나는 계정에 비디오를 나열하는 메서드입니다.
