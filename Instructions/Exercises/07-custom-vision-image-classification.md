@@ -46,7 +46,7 @@ lab:
 
 이미지 분류 모델을 학습시키려면 학습 리소스를 기반으로 Custom Vision 프로젝트를 만들어야 합니다. 이렇게 하려면 Custom Vision 포털을 사용합니다.
 
-1. Visual Studio Code에서 리포지토리를 복제한 **LabFiles/07-custom-vision-image-classification/training-images** 폴더의 학습 이미지를 확인합니다. 이 폴더에는 사과, 바나나, 오렌지 이미지의 하위 폴더가 포함되어 있습니다.
+1. Visual Studio Code에서 리포지토리를 복제한 **Labfiles/07-custom-vision-image-classification/training-images** 폴더의 학습 이미지를 확인합니다. 이 폴더에는 사과, 바나나, 오렌지 이미지의 하위 폴더가 포함되어 있습니다.
 2. 새 브라우저 탭에서 `https://customvision.ai`의 Custom Vision 포털을 엽니다. 메시지가 표시되면 Azure 구독과 연결된 Microsoft 계정을 사용하여 로그인하고 서비스 약관에 동의합니다.
 3. Custom Vision 포털에서 다음 설정을 사용하여 새 프로젝트를 만듭니다.
     - **이름**: Classify Fruit
@@ -55,7 +55,7 @@ lab:
     - 프로젝트 형식: 분류
     - **분류 형식**: 다중 클래스(이미지당 단일 태그)
     - **도메인**: 식품
-4. 새 프로젝트에서 **\[+\]이미지 추가**를 클릭하고 앞에서 확인한 **LabFiles/07-custom-vision-image-classification/training-images/apple** 폴더의 모든 파일을 선택합니다. 그런 후 다음과 같이 *apple* 태그를 지정하여 이미지 파일을 업로드합니다.
+4. 새 프로젝트에서 **\[+\]이미지 추가**를 클릭하고 앞에서 확인한 **Labfiles/07-custom-vision-image-classification/training-images/apple** 폴더의 모든 파일을 선택합니다. 그런 후 다음과 같이 *apple* 태그를 지정하여 이미지 파일을 업로드합니다.
 
 ![apple 태그를 사용하여 사과 업로드](../media/upload_apples.jpg)
    
